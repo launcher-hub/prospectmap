@@ -1,0 +1,16 @@
+# Dépendances
+node_modules/
+
+# Cache PHP
+api/cache/*.json
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.log
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo

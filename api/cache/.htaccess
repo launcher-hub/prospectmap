@@ -1,0 +1,2 @@
+# Empêcher l'accès direct aux fichiers de cache
+Deny from all

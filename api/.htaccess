@@ -1,0 +1,15 @@
+# Autoriser l'exécution PHP
+<IfModule mod_php.c>
+    php_flag engine on
+</IfModule>
+
+# Sécurité : empêcher l'accès aux fichiers sensibles
+<FilesMatch "\.(env|log|sql|bak)$">
+    Deny from all
+</FilesMatch>
+
+# Augmenter le timeout pour les requêtes Overpass
+<IfModule mod_php.c>
+    php_value max_execution_time 60
+    php_value max_input_time 60
+</IfModule>
