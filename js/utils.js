@@ -135,10 +135,10 @@ export function hasWebsiteInTags(tags) {
 
 /**
  * Génère un prompt IA optimisé pour la copie presse-papier.
- * Le prompt demande à l'IA de rechercher le commerce en profondeur
- * et de produire un brief structuré pour un builder de site web.
+ * Le prompt demande à l'IA de rechercher le commerce puis de produire
+ * un prompt builder complet prêt à être collé dans une IA de création de site.
  * @param {object} commerce — Données du commerce
- * @param {string} [searchCity] — Ville de la recherche (pour les commerces sans adresse)
+ * @param {string} [searchCity] — Ville de la recherche
  */
 export function formatForClipboard(commerce, searchCity) {
   const cat = CATEGORIES[commerce.category] || CATEGORIES.other;
@@ -147,7 +147,6 @@ export function formatForClipboard(commerce, searchCity) {
   const searchLink = getGoogleSearchLink(commerce.name, city);
   const osmLink = getOSMLink(commerce.osmId);
 
-  // Infos connues
   const known = [];
   known.push(`- Nom : ${commerce.name}`);
   known.push(`- Type : ${cat.label}`);
@@ -161,7 +160,7 @@ export function formatForClipboard(commerce, searchCity) {
   known.push(`- Google Maps : ${mapsLink}`);
   known.push(`- OpenStreetMap : ${osmLink}`);
 
-  return `Tu es un expert en création de sites web pour des commerces locaux. Je te donne les informations d'un commerce qui n'a PAS de site web (ou un site inexistant/incomplet). Ton rôle est de faire des recherches approfondies puis de produire un brief structuré.
+  return `Tu es un expert en création de sites web pour des commerces locaux. Je te donne les infos d'un commerce SANS site web. Ton job en 2 étapes :
 
 ═══════════════════════════════════════════
 COMMERCE À ANALYSER
@@ -170,83 +169,112 @@ COMMERCE À ANALYSER
 ${known.join('\n')}
 
 ═══════════════════════════════════════════
-TES INSTRUCTIONS
+ÉTAPE 1 — RECHERCHE (sois EXHAUSTIF)
 ═══════════════════════════════════════════
 
-ÉTAPE 1 — RECHERCHE APPROFONDIE
-Recherche ABSOLUMENT tout ce que tu peux trouver sur "${commerce.name}"${city ? ` à ${city}` : ''} :
-- Site web existant (même incomplet), page Facebook, Instagram, TripAdvisor, Google Business
-- Photos du commerce, de l'intérieur, de l'extérieur
-- Le menu complet si c'est un restaurant/café/fast-food
-- Les services proposés si c'est un commerce de services
-- Les avis clients (ce que les gens aiment, les points forts)
-- L'ambiance, le style, le positionnement (luxe, abordable, familial, moderne, traditionnel…)
-- Les couleurs dominantes du commerce (logo, façade, décoration intérieure)
-- La concurrence locale (quels autres commerces similaires dans le quartier)
-- Les horaires d'ouverture exactes
-- Le nom du propriétaire ou gérant si trouvable
+Cherche ABSOLUMENT TOUT sur "${commerce.name}"${city ? ` à ${city}` : ''} :
+- Page Facebook, Instagram, TikTok, TripAdvisor, Google Business, Pages Jaunes, Fresha, Planity
+- Photos : façade, intérieur, produits, plats, équipe, logo
+- Menu complet avec tarifs (restaurant) ou liste de services avec prix
+- Avis clients (extraits précis, points forts et faiblesses)
+- Ambiance, style, décoration, couleurs dominantes
+- Histoire du commerce, fondateur, année de création
+- Concurrents directs dans la même ville
+- Horaires exactes et jours d'ouverture
+- Réseaux sociaux et nombre d'abonnés
 
-Utilise ces liens pour t'aider :
+Liens utiles :
 - Google : ${searchLink}
 - Google Maps : ${mapsLink}
 
-ÉTAPE 2 — BRIEF POUR CRÉATEUR DE SITE WEB
-Une fois tes recherches terminées, produis un brief dans CE FORMAT EXACT :
+═══════════════════════════════════════════
+ÉTAPE 2 — GÉNÈRE LE PROMPT BUILDER CI-DESSOUS
+═══════════════════════════════════════════
 
---- DÉBUT DU BRIEF ---
+Une fois tes recherches terminées, produis UNIQUEMENT le texte ci-dessous (entre les marqueurs). Ce texte sera directement copié-collé dans une IA de création de site web. Il doit contenir TOUTES les infos, TOUT le contenu, TOUTES les décisions de design. L'IA qui le recevra ne doit faire AUCUNE recherche — tout est dans le prompt.
 
-## 🏪 Fiche Commerce
+--- DÉBUT DU PROMPT BUILDER ---
+
+Crée un site web professionnel pour le commerce suivant. Utilise un design moderne, responsive, et adapté au secteur d'activité. Le site doit être prêt à publier.
+
+## 🏪 COMMERCE
 - **Nom** : [nom complet]
-- **Type** : [catégorie]
+- **Secteur** : [type de commerce]
 - **Adresse** : [adresse complète]
-- **Téléphone** : [numéro]
+- **Téléphone** : [numéro avec lien tel:]
 - **Email** : [email]
-- **Horaires** : [horaires détaillés]
-- **Site existant** : [URL ou "Aucun"]
+- **Horaires** : [horaires détaillés jour par jour]
+- **GPS** : [lat, lon]
 
-## 🎨 Identité Visuelle
-- **Couleurs dominantes** : [couleurs observées sur les photos, logo, façade]
-- **Style** : [moderne / traditionnel / chic / décontracté / etc.]
-- **Ambiance** : [description de l'atmosphère du lieu]
-- **Positionnement** : [luxe / milieu de gamme / abordable / etc.]
+## 🎨 DESIGN & STYLE
+- **Palette de couleurs** : [3-5 couleurs HEX observées ou suggérées]
+- **Style visuel** : [modèle : minimaliste / chaleureux / luxe / dynamique / traditionnel]
+- **Ambiance** : [description de l'atmosphère à transmettre]
+- **Positionnement** : [abordable / milieu de gamme / premium]
+- **Police recommandée** : [suggestion de Google Fonts adaptée]
 
-## 📋 Contenu du Site
-### Pages recommandées :
-1. **Accueil** : [ce qu'il doit mettre en avant]
-2. **Menu / Services** : [liste complète si applicable]
-3. **À propos** : [histoire du commerce, valeurs]
-4. **Galerie** : [description des photos à inclure]
-5. **Contact** : [coordonnées, formulaire, carte]
+## 📄 STRUCTURE DU SITE
+### Page d'accueil :
+- **Hero** : [titre accrocheur + sous-titre + CTA principal]
+- **Section services/menu** : [aperçu des 3-4 services/phares]
+- **Section avis** : [3 avis clients clés]
+- **Section contact** : [coordonnées + carte intégrée]
 
-### Textes suggérés :
-- **Slogan** : [proposition de slogan accrocheur]
-- **Description courte** : [1-2 phrases pour la page d'accueil]
-- **Description longue** : [paragraphe "À propos"]
+### Page Services / Menu :
+[liste COMPLÈTE avec descriptions et prix si disponibles]
 
-## 📝 Contenu Détaillé
-### Menu / Services complet :
-[liste complète avec prix si trouvables]
+### Page À propos :
+- **Histoire** : [paragraphe sur l'histoire du commerce]
+- **Équipe** : [présentation si infos disponibles]
+- **Valeurs** : [ce qui différencie ce commerce]
 
-### Points forts à mettre en avant :
-1. [point fort 1]
-2. [point fort 2]
-3. [point fort 3]
+### Page Contact :
+- Formulaire de contact
+- Carte Google Maps intégrée
+- Bouton d'appel direct (mobile)
+- Lien vers prise de RDV si applicable
 
-### Avis clients (extraits) :
-[citations d'avis pertinents]
+## ✍️ CONTENU RÉDIGÉ
+### Slogan : [slogan accrocheur]
 
-## 🏆 Concurrents Locaux
-- [concurrent 1] — [ce qu'il fait bien]
-- [concurrent 2] — [ce qu'il fait bien]
+### Description courte (hero) :
+[2-3 phrases percutantes]
 
-## 💡 Recommandations
-- **Type de site recommandé** : [one-page / multi-pages / e-commerce]
-- **Fonctionnalités clés** : [réservation en ligne / menu interactif / galerie photos / etc.]
-- **Ton du contenu** : [professionnel / chaleureux / dynamique / etc.]
+### Description longue (à propos) :
+[paragraphe complet, 100-150 mots]
 
---- FIN DU BRIEF ---
+### Descriptions services :
+Pour chaque service : [nom + description de 2-3 lignes + prix si dispo]
 
-IMPORTANT : Si tu ne trouves pas certaines informations, indique "[Non trouvé — à compléter avec le client]" plutôt que d'inventer. Sois précis et factuel.`;
+## 📸 GALERIE
+[Description des 6-10 photos à inclure avec légendes suggérées]
+
+## ⭐ PREUVE SOCIALE
+### Avis clients (à mettre en avant) :
+1. "[avis 1]" — [prénom]
+2. "[avis 2]" — [prénom]
+3. "[avis 3]" — [prénom]
+
+## 🔧 FONCTIONNALITÉS
+- [ ] Bouton d'appel sticky sur mobile
+- [ ] Carte Google Maps intégrée
+- [ ] Formulaire de contact
+- [ ] Prise de RDV en lien [Fresha/Planity/téléphone]
+- [ ] Galerie photos avec lightbox
+- [ ] Horaires d'ouverture en temps réel
+- [ ] Lien vers réseaux sociaux
+- [ ] SEO : meta title, meta description, balises alt
+
+## 📱 RESPONSIVE
+Le site doit être optimisé mobile-first. 70%+ des visiteurs viendront de téléphone.
+
+--- FIN DU PROMPT BUILDER ---
+
+IMPORTANT :
+- Remplace TOUS les crochets [...] par les vraies données trouvées.
+- Si une info n'est pas trouvable, écris "[À compléter avec le client : ce qu'il faut demander]".
+- Le prompt builder doit être AUTONOME : l'IA qui le reçoit peut créer le site sans rien demander de plus.
+- Sois précis, factuel, et exhaustif. Plus le prompt est riche, plus le site sera réussi.`;
 }
 
 /**
