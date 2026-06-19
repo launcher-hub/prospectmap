@@ -244,18 +244,19 @@ window.startVerification = async function () {
 
     // Marquer comme vérifié
     commerce.websiteCheckDone = true;
+    commerce.verificationDone = true;
     verified++;
 
     // ── Mise à jour progressive ──
     // Mettre à jour le marqueur sur la carte
     refreshMarkerIcon(commerce.id);
 
-    // Mettre à jour la carte dans la sidebar
-    updateCommerceCard(commerce);
+    // Re-render la liste pour refléter le nouveau statut
+    const withoutSiteCurrent = state.commerces.filter(c => !c.hasWebsite);
+    renderCommerceList(withoutSiteCurrent, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity), state.currentCity);
 
     // Mettre à jour le compteur
-    const withoutSite = state.commerces.filter(c => !c.hasWebsite);
-    updateCounter(state.commerces.length, withoutSite.length, true);
+    updateCounter(state.commerces.length, withoutSiteCurrent.length, true);
 
     // Barre de progression
     showVerificationProgress(verified, toVerify.length);
@@ -380,7 +381,8 @@ function normalizeElements(elements, centerLat, centerLon, radius) {
       website: websiteCheck.hasSite ? websiteCheck.url : null,
       hasWebsite: websiteCheck.hasSite,
       osmWebsite: tags.website || tags['contact:website'] || tags.url || null,
-      websiteCheckDone: false // Tous partent en "non vérifié"
+      websiteCheckDone: false,
+      verificationDone: false
     });
   }
 

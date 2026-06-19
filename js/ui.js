@@ -257,8 +257,14 @@ export function renderCommerceList(commerces, onLocate, formatter, searchCity) {
       const city = extractCity(c.address) || searchCity || '';
       const mapsLink = getGoogleMapsLink(c.lat, c.lon, c.name);
       const searchLink = getGoogleSearchLink(c.name, city);
-      // ID sécurisé pour le data-id (remplacer / par --)
       const safeId = c.id.replace(/\//g, '--');
+      // Statut de vérification
+      let statusHtml = '<span class="card-status card-status-pending">⏳ Non vérifié</span>';
+      if (c.hasWebsite) {
+        statusHtml = '<span class="card-status card-status-found">✅ Site trouvé</span>';
+      } else if (c.verificationDone) {
+        statusHtml = '<span class="card-status card-status-none">🔴 Pas de site</span>';
+      }
       return `
         <div class="commerce-card" data-id="${safeId}">
           <div class="card-header">
@@ -267,7 +273,7 @@ export function renderCommerceList(commerces, onLocate, formatter, searchCity) {
               <strong class="card-name">${escapeHtml(c.name)}</strong>
               <span class="card-type">${escapeHtml(cat.label)}</span>
             </div>
-            <span class="card-status card-status-pending">⏳ Non vérifié</span>
+            ${statusHtml}
           </div>
           <div class="card-address">📍 ${escapeHtml(c.address)}</div>
           ${c.phone ? `<div class="card-phone">📞 <a href="tel:${escapeHtml(c.phone)}">${escapeHtml(c.phone)}</a></div>` : ''}
