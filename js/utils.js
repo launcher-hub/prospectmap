@@ -134,40 +134,117 @@ export function hasWebsiteInTags(tags) {
 }
 
 /**
- * Génère le texte formaté pour la copie presse-papier
+ * Génère un prompt IA optimisé pour la copie presse-papier.
+ * Le prompt demande à l'IA de rechercher le commerce en profondeur
+ * et de produire un brief structuré pour un builder de site web.
  */
 export function formatForClipboard(commerce) {
   const cat = CATEGORIES[commerce.category] || CATEGORIES.other;
-  const city = extractCity(commerce.address);
-  const lines = [
-    `=== ${cat.icon} ${commerce.name} ===`,
-    `Catégorie : ${cat.label}`,
-    `Adresse : ${commerce.address}`,
-  ];
+  const city = extractCity(commerce.address) || 'France';
+  const mapsLink = getGoogleMapsLink(commerce.lat, commerce.lon, commerce.name);
+  const searchLink = getGoogleSearchLink(commerce.name, city);
+  const osmLink = getOSMLink(commerce.osmId);
 
-  if (commerce.phone)       lines.push(`Téléphone : ${commerce.phone}`);
-  if (commerce.email)       lines.push(`Email : ${commerce.email}`);
-  if (commerce.openingHours) lines.push(`Horaires : ${commerce.openingHours}`);
-  if (commerce.note)        lines.push(`Note : ${commerce.note}`);
-  if (commerce.website)     lines.push(`Site web : ${commerce.website}`);
+  // Infos connues
+  const known = [];
+  known.push(`- Nom : ${commerce.name}`);
+  known.push(`- Type : ${cat.label}`);
+  if (commerce.address !== 'Adresse non renseignée') known.push(`- Adresse : ${commerce.address}`);
+  if (commerce.phone) known.push(`- Téléphone : ${commerce.phone}`);
+  if (commerce.email) known.push(`- Email : ${commerce.email}`);
+  if (commerce.openingHours) known.push(`- Horaires : ${commerce.openingHours}`);
+  if (commerce.note) known.push(`- Note OSM : ${commerce.note}`);
+  if (commerce.website) known.push(`- Site existant : ${commerce.website}`);
+  known.push(`- Coordonnées GPS : ${commerce.lat}, ${commerce.lon}`);
+  known.push(`- Google Maps : ${mapsLink}`);
+  known.push(`- OpenStreetMap : ${osmLink}`);
 
-  lines.push(`Statut site web : ${commerce.hasWebsite ? 'A un site' : 'PAS DE SITE WEB'}`);
+  return `Tu es un expert en création de sites web pour des commerces locaux. Je te donne les informations d'un commerce qui n'a PAS de site web (ou un site inexistant/incomplet). Ton rôle est de faire des recherches approfondies puis de produire un brief structuré.
 
-  // Liens utiles
-  lines.push('');
-  lines.push('--- Liens ---');
-  lines.push(`Google Maps : ${getGoogleMapsLink(commerce.lat, commerce.lon, commerce.name)}`);
-  lines.push(`Itinéraire : ${getGoogleDirectionsLink(commerce.lat, commerce.lon)}`);
-  lines.push(`OpenStreetMap : ${getOSMLink(commerce.osmId)}`);
-  if (!commerce.hasWebsite) {
-    lines.push(`Recherche site web : ${getGoogleSearchLink(commerce.name, city)}`);
-  }
+═══════════════════════════════════════════
+COMMERCE À ANALYSER
+═══════════════════════════════════════════
 
-  lines.push('');
-  lines.push(`Coordonnées : ${commerce.lat}, ${commerce.lon}`);
-  lines.push(`Source : OpenStreetMap`);
+${known.join('\n')}
 
-  return lines.join('\n');
+═══════════════════════════════════════════
+TES INSTRUCTIONS
+═══════════════════════════════════════════
+
+ÉTAPE 1 — RECHERCHE APPROFONDIE
+Recherche ABSOLUMENT tout ce que tu peux trouver sur "${commerce.name}" à ${city} :
+- Site web existant (même incomplet), page Facebook, Instagram, TripAdvisor, Google Business
+- Photos du commerce, de l'intérieur, de l'extérieur
+- Le menu complet si c'est un restaurant/café/fast-food
+- Les services proposés si c'est un commerce de services
+- Les avis clients (ce que les gens aiment, les points forts)
+- L'ambiance, le style, le positionnement (luxe, abordable, familial, moderne, traditionnel…)
+- Les couleurs dominantes du commerce (logo, façade, décoration intérieure)
+- La concurrence locale (quels autres commerces similaires dans le quartier)
+- Les horaires d'ouverture exactes
+- Le nom du propriétaire ou gérant si trouvable
+
+Utilise ces liens pour t'aider :
+- Google : ${searchLink}
+- Google Maps : ${mapsLink}
+
+ÉTAPE 2 — BRIEF POUR CRÉATEUR DE SITE WEB
+Une fois tes recherches terminées, produis un brief dans CE FORMAT EXACT :
+
+--- DÉBUT DU BRIEF ---
+
+## 🏪 Fiche Commerce
+- **Nom** : [nom complet]
+- **Type** : [catégorie]
+- **Adresse** : [adresse complète]
+- **Téléphone** : [numéro]
+- **Email** : [email]
+- **Horaires** : [horaires détaillés]
+- **Site existant** : [URL ou "Aucun"]
+
+## 🎨 Identité Visuelle
+- **Couleurs dominantes** : [couleurs observées sur les photos, logo, façade]
+- **Style** : [moderne / traditionnel / chic / décontracté / etc.]
+- **Ambiance** : [description de l'atmosphère du lieu]
+- **Positionnement** : [luxe / milieu de gamme / abordable / etc.]
+
+## 📋 Contenu du Site
+### Pages recommandées :
+1. **Accueil** : [ce qu'il doit mettre en avant]
+2. **Menu / Services** : [liste complète si applicable]
+3. **À propos** : [histoire du commerce, valeurs]
+4. **Galerie** : [description des photos à inclure]
+5. **Contact** : [coordonnées, formulaire, carte]
+
+### Textes suggérés :
+- **Slogan** : [proposition de slogan accrocheur]
+- **Description courte** : [1-2 phrases pour la page d'accueil]
+- **Description longue** : [paragraphe "À propos"]
+
+## 📝 Contenu Détaillé
+### Menu / Services complet :
+[liste complète avec prix si trouvables]
+
+### Points forts à mettre en avant :
+1. [point fort 1]
+2. [point fort 2]
+3. [point fort 3]
+
+### Avis clients (extraits) :
+[citations d'avis pertinents]
+
+## 🏆 Concurrents Locaux
+- [concurrent 1] — [ce qu'il fait bien]
+- [concurrent 2] — [ce qu'il fait bien]
+
+## 💡 Recommandations
+- **Type de site recommandé** : [one-page / multi-pages / e-commerce]
+- **Fonctionnalités clés** : [réservation en ligne / menu interactif / galerie photos / etc.]
+- **Ton du contenu** : [professionnel / chaleureux / dynamique / etc.]
+
+--- FIN DU BRIEF ---
+
+IMPORTANT : Si tu ne trouves pas certaines informations, indique "[Non trouvé — à compléter avec le client]" plutôt que d'inventer. Sois précis et factuel.`;
 }
 
 /**

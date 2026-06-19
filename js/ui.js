@@ -361,20 +361,22 @@ export function updateCommerceCard(commerce) {
   const list = $('#commerce-list');
   if (!list) return;
 
-  const card = list.querySelector(`.commerce-card[data-id="${commerce.id}"]`);
+  // Trouver la carte par data-id (on boucle car le sélecteur [data-id=".../..."] peut poser problème)
+  let card = null;
+  list.querySelectorAll('.commerce-card').forEach(el => {
+    if (el.dataset.id === commerce.id) card = el;
+  });
   if (!card) return;
-
-  const cat = CATEGORIES[commerce.category] || CATEGORIES.other;
 
   // Mettre à jour l'indicateur de statut
   const statusEl = card.querySelector('.card-status');
   if (statusEl) {
     if (commerce.hasWebsite) {
       statusEl.className = 'card-status card-status-found';
-      statusEl.innerHTML = '✅ Site trouvé';
+      statusEl.textContent = '✅ Site trouvé';
     } else if (commerce.websiteCheckDone) {
       statusEl.className = 'card-status card-status-none';
-      statusEl.innerHTML = '🔴 Pas de site';
+      statusEl.textContent = '🔴 Pas de site';
     }
   }
 
