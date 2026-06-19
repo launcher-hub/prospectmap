@@ -80,7 +80,7 @@ body {
 /* ── Zone de recherche ────────────────────────────────────────────────────── */
 
 .search-section {
-  padding: 16px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -181,11 +181,11 @@ body {
 /* ── Contrôles (rayon + filtres) ──────────────────────────────────────────── */
 
 .controls-section {
-  padding: 16px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   overflow-y: auto;
-  max-height: 50vh;
+  max-height: 28vh;
 }
 
 .control-group {
@@ -271,7 +271,7 @@ body {
 /* ── Compteur ─────────────────────────────────────────────────────────────── */
 
 #commerce-counter {
-  padding: 12px 20px;
+  padding: 8px 20px;
   background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
   border-bottom: 1px solid var(--border);
   text-align: center;
@@ -280,7 +280,7 @@ body {
 
 .counter-number {
   display: block;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #d35400;
   line-height: 1;
@@ -314,7 +314,7 @@ body {
 /* ── Bouton vérification progressive ─────────────────────────────────────── */
 
 #verify-section {
-  padding: 10px 20px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--border);
   text-align: center;
   flex-shrink: 0;
@@ -322,12 +322,12 @@ body {
 
 .verify-btn {
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: linear-gradient(135deg, #e67e22, #f39c12);
   color: #fff;
   border: none;
   border-radius: var(--radius);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition);
@@ -403,20 +403,20 @@ body {
 /* ── Actions (copier tout) ────────────────────────────────────────────────── */
 
 .actions-bar {
-  padding: 10px 20px;
+  padding: 6px 20px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .actions-bar button {
   flex: 1;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: #fff;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all var(--transition);
 }
