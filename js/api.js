@@ -45,9 +45,9 @@ async function apiFetch(params) {
   return response.json();
 }
 
-// ── Géocodage via Photon (Komoot) — direct, pas de proxy nécessaire ─────────
-// Photon utilise les mêmes données OSM que Nominatim mais est plus rapide
-// et n'a pas de rate limit aussi strict. Supporte le CORS.
+// ── Géocodage via Nominatim (proxy PHP) + Photon en fallback ────────────────
+// Nominatim est plus précis pour les adresses françaises.
+// Photon est utilisé en fallback si Nominatim échoue (rate limit, timeout).
 
 const PHOTON_BASE = 'https://photon.komoot.io/api';
 
@@ -56,6 +56,31 @@ export async function geocodeAddress(query) {
   const cached = cacheGet(cacheKey);
   if (cached) return cached;
 
+  // 1. Essayer Nominatim via proxy PHP (plus précis pour les adresses FR)
+  try {
+    const data = await apiFetch({
+      service: 'nominatim',
+      q: query,
+      format: 'json',
+      limit: '5',
+      addressdetails: '1',
+      countrycodes: 'fr'
+    });
+
+    if (data && data.length > 0) {
+      const results = data.map((item) => ({
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        displayName: item.display_name
+      }));
+      cacheSet(cacheKey, results);
+      return results;
+    }
+  } catch {
+    // Nominatim échoué (rate limit, timeout) → fallback Photon
+  }
+
+  // 2. Fallback : Photon (rapide, pas de rate limit strict)
   const params = new URLSearchParams({
     q: query,
     limit: '5',
@@ -65,29 +90,6 @@ export async function geocodeAddress(query) {
   const response = await fetch(`${PHOTON_BASE}?${params}`);
 
   if (!response.ok) {
-    // Fallback vers le proxy PHP (Nominatim) si Photon échoue
-    try {
-      const data = await apiFetch({
-        service: 'nominatim',
-        q: query,
-        format: 'json',
-        limit: '5',
-        addressdetails: '1',
-        countrycodes: 'fr'
-      });
-
-      if (data && data.length > 0) {
-        const results = data.map((item) => ({
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon),
-          displayName: item.display_name
-        }));
-        cacheSet(cacheKey, results);
-        return results;
-      }
-    } catch {
-      // Les deux ont échoué
-    }
     throw new Error('Aucune adresse trouvée. Vérifiez votre saisie.');
   }
 
@@ -100,7 +102,6 @@ export async function geocodeAddress(query) {
   const results = data.features.map((f) => {
     const [lon, lat] = f.geometry.coordinates;
     const p = f.properties;
-    // Construire un display_name lisible à partir des propriétés Photon
     const parts = [];
     if (p.name) parts.push(p.name);
     if (p.street) {
