@@ -33,8 +33,8 @@ export function initMap(containerId) {
     maxZoom: 19
   }).addTo(map);
 
-  // LayerGroup pour les marqueurs commerces
-  markersLayer = L.layerGroup().addTo(map);
+  // featureGroup pour les marqueurs commerces (getBounds disponible)
+  markersLayer = L.featureGroup().addTo(map);
 
   return map;
 }
