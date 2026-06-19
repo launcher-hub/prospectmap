@@ -146,7 +146,7 @@ function buildOverpassQuery(lat, lon, radius, activeCategories) {
     filters.push(`node["amenity"="restaurant"](around:${radius},${lat},${lon});`);
   }
 
-  return `[out:json][timeout:30];(${filters.join('')});out center body;`;
+  return `[out:json][timeout:60];(${filters.join('')});out center body;`;
 }
 
 export async function queryOverpass(lat, lon, radius, activeCategories) {

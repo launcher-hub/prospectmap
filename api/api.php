@@ -213,11 +213,11 @@ function handleOverpass(): void {
         return;
     }
 
-    // Requête POST
+    // Requête POST (timeout long car Overpass peut être lent)
     $result = httpFetch(OVERPASS_BASE, [
         'post_body' => 'data=' . urlencode($query),
         'headers'   => ['Content-Type: application/x-www-form-urlencoded'],
-        'timeout'   => 30,
+        'timeout'   => 60,
     ]);
 
     if (!$result['success']) {

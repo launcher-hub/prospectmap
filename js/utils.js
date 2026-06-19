@@ -137,10 +137,12 @@ export function hasWebsiteInTags(tags) {
  * Génère un prompt IA optimisé pour la copie presse-papier.
  * Le prompt demande à l'IA de rechercher le commerce en profondeur
  * et de produire un brief structuré pour un builder de site web.
+ * @param {object} commerce — Données du commerce
+ * @param {string} [searchCity] — Ville de la recherche (pour les commerces sans adresse)
  */
-export function formatForClipboard(commerce) {
+export function formatForClipboard(commerce, searchCity) {
   const cat = CATEGORIES[commerce.category] || CATEGORIES.other;
-  const city = extractCity(commerce.address) || 'France';
+  const city = extractCity(commerce.address) || searchCity || '';
   const mapsLink = getGoogleMapsLink(commerce.lat, commerce.lon, commerce.name);
   const searchLink = getGoogleSearchLink(commerce.name, city);
   const osmLink = getOSMLink(commerce.osmId);
@@ -172,7 +174,7 @@ TES INSTRUCTIONS
 ═══════════════════════════════════════════
 
 ÉTAPE 1 — RECHERCHE APPROFONDIE
-Recherche ABSOLUMENT tout ce que tu peux trouver sur "${commerce.name}" à ${city} :
+Recherche ABSOLUMENT tout ce que tu peux trouver sur "${commerce.name}"${city ? ` à ${city}` : ''} :
 - Site web existant (même incomplet), page Facebook, Instagram, TripAdvisor, Google Business
 - Photos du commerce, de l'intérieur, de l'extérieur
 - Le menu complet si c'est un restaurant/café/fast-food

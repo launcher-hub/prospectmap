@@ -102,6 +102,19 @@ body {
 #search-btn:hover:not(:disabled) { background: var(--primary-dark); }
 #search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+#clear-btn {
+  padding: 9px 10px;
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  transition: all var(--transition);
+}
+
+#clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+
 /* Bouton vérifier — dans la section recherche, toujours visible */
 #verify-section {
   margin-top: 8px;

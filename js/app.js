@@ -17,6 +17,7 @@ const state = {
   currentLat: null,
   currentLon: null,
   currentAddress: '',
+  currentCity: '',         // Ville de la recherche (pour le prompt)
   commerces: [],           // Tous les commerces trouvés (normalisés)
   commerceMap: new Map(),  // id → commerce (pour accès rapide)
   isLoading: false,
@@ -109,6 +110,11 @@ async function handleSearch() {
     state.isVerifying = false;
   }
 
+  // Reset complet avant nouvelle recherche
+  clearAll();
+  resetState();
+  hideVerificationProgress();
+
   state.isLoading = true;
   setLoading(true);
   hideSuggestions();
@@ -123,6 +129,7 @@ async function handleSearch() {
     state.currentLat = best.lat;
     state.currentLon = best.lon;
     state.currentAddress = best.displayName;
+    state.currentCity = extractCity(best.displayName) || '';
 
     // 2. Centrage carte + marqueur
     const radius = getSelectedRadius();
@@ -157,7 +164,7 @@ async function handleSearch() {
     const withoutSite = commerces.filter(c => !c.hasWebsite);
     updateCounter(commerces.length, withoutSite.length, true);
     updateVisibleCount(commerces.length);
-    renderCommerceList(withoutSite, locateAndOpenCommerce, formatForClipboard);
+    renderCommerceList(withoutSite, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity));
 
     // 6. Afficher le bouton "Vérifier les sites"
     if (withoutSite.length > 0) {
@@ -265,7 +272,7 @@ window.startVerification = async function () {
   hideVerificationProgress();
 
   const withoutSite = state.commerces.filter(c => !c.hasWebsite);
-  renderCommerceList(withoutSite, locateAndOpenCommerce, formatForClipboard);
+  renderCommerceList(withoutSite, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity));
 
   if (state.verifyAbort.signal.aborted) {
     showStatus(`Vérification annulée. ${verified}/${toVerify.length} vérifiés, ${foundWebsite} site(s) trouvé(s).`, 'info', 5000);
@@ -301,7 +308,7 @@ function handleClear() {
   resetState();
   updateCounter(0, 0, false);
   updateVisibleCount(0);
-  renderCommerceList([], locateAndOpenCommerce, formatForClipboard);
+  renderCommerceList([], locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity));
   hideVerifyButton();
   hideVerificationProgress();
   showStatus('Carte effacée.', 'info', 2000);
@@ -313,7 +320,7 @@ function handleCopyAll() {
     showStatus('Aucun commerce sans site à copier.', 'info', 2000);
     return;
   }
-  const text = withoutSite.map(formatForClipboard).join('\n\n---\n\n');
+  const text = withoutSite.map(c => formatForClipboard(c, state.currentCity)).join('\n\n---\n\n');
   copyToClipboard(text);
   showStatus(`${withoutSite.length} commerces copiés dans le presse-papier !`, 'success', 3000);
 }
@@ -394,7 +401,7 @@ document.addEventListener('click', (e) => {
   const commerce = state.commerceMap.get(commerceIdStr);
   if (!commerce) return;
 
-  copyToClipboard(formatForClipboard(commerce));
+  copyToClipboard(formatForClipboard(commerce, state.currentCity));
   copyBtn.textContent = '✅ Copié !';
   setTimeout(() => { copyBtn.textContent = '📋 Copier les infos'; }, 2000);
 });
