@@ -164,7 +164,7 @@ async function handleSearch() {
     const withoutSite = commerces.filter(c => !c.hasWebsite);
     updateCounter(commerces.length, withoutSite.length, true);
     updateVisibleCount(commerces.length);
-    renderCommerceList(withoutSite, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity));
+    renderCommerceList(withoutSite, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity), state.currentCity);
 
     // 6. Afficher le bouton "Vérifier les sites"
     if (withoutSite.length > 0) {
@@ -272,7 +272,7 @@ window.startVerification = async function () {
   hideVerificationProgress();
 
   const withoutSite = state.commerces.filter(c => !c.hasWebsite);
-  renderCommerceList(withoutSite, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity));
+  renderCommerceList(withoutSite, locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity), state.currentCity);
 
   if (state.verifyAbort.signal.aborted) {
     showStatus(`Vérification annulée. ${verified}/${toVerify.length} vérifiés, ${foundWebsite} site(s) trouvé(s).`, 'info', 5000);
@@ -308,7 +308,7 @@ function handleClear() {
   resetState();
   updateCounter(0, 0, false);
   updateVisibleCount(0);
-  renderCommerceList([], locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity));
+  renderCommerceList([], locateAndOpenCommerce, (c) => formatForClipboard(c, state.currentCity), state.currentCity);
   hideVerifyButton();
   hideVerificationProgress();
   showStatus('Carte effacée.', 'info', 2000);

@@ -236,8 +236,9 @@ export function hideSuggestions() {
  * @param {Array} commerces — Liste des commerces (sans site web)
  * @param {function} onLocate — Callback pour centrer la carte sur un commerce
  * @param {function} formatter — Fonction formatForClipboard
+ * @param {string} [searchCity] — Ville de la recherche pour les liens
  */
-export function renderCommerceList(commerces, onLocate, formatter) {
+export function renderCommerceList(commerces, onLocate, formatter, searchCity) {
   const list = $('#commerce-list');
   if (!list) return;
 
@@ -253,11 +254,13 @@ export function renderCommerceList(commerces, onLocate, formatter) {
   list.innerHTML = commerces
     .map((c) => {
       const cat = CATEGORIES[c.category] || CATEGORIES.other;
-      const city = extractCity(c.address);
+      const city = extractCity(c.address) || searchCity || '';
       const mapsLink = getGoogleMapsLink(c.lat, c.lon, c.name);
       const searchLink = getGoogleSearchLink(c.name, city);
+      // ID sécurisé pour le data-id (remplacer / par --)
+      const safeId = c.id.replace(/\//g, '--');
       return `
-        <div class="commerce-card" data-id="${c.id}">
+        <div class="commerce-card" data-id="${safeId}">
           <div class="card-header">
             <span class="card-icon" style="background:${cat.color}">${cat.icon}</span>
             <div class="card-info">
@@ -361,11 +364,9 @@ export function updateCommerceCard(commerce) {
   const list = $('#commerce-list');
   if (!list) return;
 
-  // Trouver la carte par data-id (on boucle car le sélecteur [data-id=".../..."] peut poser problème)
-  let card = null;
-  list.querySelectorAll('.commerce-card').forEach(el => {
-    if (el.dataset.id === commerce.id) card = el;
-  });
+  // ID sécurisé (même format que dans renderCommerceList)
+  const safeId = commerce.id.replace(/\//g, '--');
+  const card = list.querySelector(`.commerce-card[data-id="${safeId}"]`);
   if (!card) return;
 
   // Mettre à jour l'indicateur de statut
