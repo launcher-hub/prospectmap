@@ -303,31 +303,28 @@ export function renderCommerceList(commerces, onLocate, formatter) {
 // ── Bouton "Vérifier les sites" ─────────────────────────────────────────────
 
 /**
- * Affiche le bouton "Vérifier les sites web" sous le compteur
+ * Active le bouton "Vérifier les sites web" avec le nombre de commerces
  * @param {number} count — Nombre de commerces à vérifier
  */
 export function showVerifyButton(count) {
-  const container = $('#verify-section');
-  if (!container) return;
-
-  container.style.display = 'block';
-  container.innerHTML = `
-    <button id="verify-btn" class="verify-btn" onclick="window.startVerification()">
-      🔍 Vérifier les ${count} commerces
-    </button>
-    <span class="verify-hint">Recherche les sites web via Nominatim (~${Math.ceil(count * 1.2)}s)</span>
-  `;
+  const btn = $('#verify-btn');
+  if (!btn) return;
+  btn.disabled = false;
+  btn.textContent = `🔍 Vérifier les ${count} commerces`;
+  btn.className = 'verify-btn';
+  btn.onclick = () => window.startVerification();
 }
 
 /**
- * Masque le bouton de vérification
+ * Désactive le bouton de vérification (état initial)
  */
 export function hideVerifyButton() {
-  const container = $('#verify-section');
-  if (container) {
-    container.style.display = 'none';
-    container.innerHTML = '';
-  }
+  const btn = $('#verify-btn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = '🔍 Vérifier les sites web';
+  btn.className = 'verify-btn';
+  btn.onclick = null;
 }
 
 /**
@@ -337,16 +334,20 @@ export function hideVerifyButton() {
  * @param {number} total — Total à vérifier
  */
 export function setVerifyButtonState(state, current, total) {
-  const container = $('#verify-section');
-  if (!container) return;
+  const btn = $('#verify-btn');
+  if (!btn) return;
 
   if (state === 'running') {
     const pct = Math.round((current / total) * 100);
-    container.innerHTML = `
-      <button class="verify-btn verify-btn-running" onclick="window.cancelVerification()">
-        ⏹ Annuler (${current}/${total} — ${pct}%)
-      </button>
-    `;
+    btn.disabled = false;
+    btn.textContent = `⏹ Annuler (${current}/${total} — ${pct}%)`;
+    btn.className = 'verify-btn verify-btn-running';
+    btn.onclick = () => window.cancelVerification();
+  } else if (state === 'done') {
+    btn.disabled = true;
+    btn.textContent = '✅ Vérification terminée';
+    btn.className = 'verify-btn';
+    btn.onclick = null;
   }
 }
 

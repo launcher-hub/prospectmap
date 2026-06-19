@@ -31,58 +31,61 @@
         <p>Trouvez les commerces sans site web</p>
       </div>
 
-      <!-- Recherche -->
+      <!-- Recherche + Vérifier -->
       <div class="search-section">
         <form class="search-form" id="search-form">
           <div class="search-input-wrapper">
             <input type="text" id="search-input"
-                   placeholder="Entrez une adresse (ex: 10 rue de la Paix, Paris)"
+                   placeholder="Entrez une adresse…"
                    autocomplete="off"
                    spellcheck="false"
                    required>
-            <button type="submit" id="search-btn">🔍 Rechercher</button>
-            <button type="button" id="clear-btn" title="Effacer la carte">🗑️</button>
+            <button type="submit" id="search-btn">🔍</button>
           </div>
           <div id="suggestions"></div>
         </form>
-      </div>
-
-      <!-- Contrôles -->
-      <div class="controls-section">
-        <div class="control-group">
-          <label class="control-label" for="radius-select">Rayon de recherche</label>
-          <select id="radius-select"></select>
+        <!-- Bouton vérification — toujours visible -->
+        <div id="verify-section">
+          <button id="verify-btn" class="verify-btn" disabled>
+            🔍 Vérifier les sites web
+          </button>
         </div>
-        <div class="control-group">
-          <label class="control-label">Types de commerces</label>
-          <div id="category-filters"></div>
+        <!-- Barre de progression -->
+        <div id="verification-bar" style="display:none"></div>
+      </div>
+
+      <!-- Contrôles (repliables) -->
+      <details class="controls-details">
+        <summary class="controls-summary">⚙️ Options de recherche</summary>
+        <div class="controls-section">
+          <div class="control-group">
+            <label class="control-label" for="radius-select">Rayon</label>
+            <select id="radius-select"></select>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Types de commerces</label>
+            <div id="category-filters"></div>
+          </div>
         </div>
+      </details>
+
+      <!-- Compteur + Actions -->
+      <div class="sidebar-stats">
+        <div id="commerce-counter">
+          <span class="counter-number">—</span>
+          <span class="counter-label">En attente de recherche</span>
+        </div>
+        <div class="actions-bar">
+          <button id="copy-all-btn" title="Copier tous les commerces sans site">📋 Copier tout</button>
+        </div>
+        <div id="visible-count" class="visible-count-text"></div>
       </div>
-
-      <!-- Barre de progression vérification -->
-      <div id="verification-bar"></div>
-
-      <!-- Compteur -->
-      <div id="commerce-counter">
-        <span class="counter-number">—</span>
-        <span class="counter-label">En attente de recherche</span>
-        <span class="counter-total">Entrez une adresse pour commencer</span>
-      </div>
-
-      <!-- Bouton vérification progressive -->
-      <div id="verify-section" style="display:none"></div>
-
-      <!-- Actions -->
-      <div class="actions-bar">
-        <button id="copy-all-btn" title="Copier tous les commerces sans site">📋 Copier tout</button>
-      </div>
-      <div id="visible-count" style="font-size:0.75rem;color:#7f8c8d;text-align:center;padding:4px 0;"></div>
 
       <!-- Liste des commerces -->
       <div class="commerce-list" id="commerce-list">
         <div class="empty-state">
           <span class="empty-icon">🗺️</span>
-          <p>Entrez une adresse et lancez la recherche pour découvrir les commerces sans site web autour de vous.</p>
+          <p>Entrez une adresse pour trouver les commerces sans site web autour de vous.</p>
         </div>
       </div>
 
